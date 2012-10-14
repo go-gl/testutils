@@ -3,6 +3,7 @@ package gltest
 import (
 	"log"
 	"runtime"
+	"time"
 
 	"github.com/go-gl/gl"
 	"github.com/go-gl/glfw"
@@ -50,12 +51,16 @@ func init() {
 }
 
 // This should be used to resize the window during tests, to ensure that it is
-// correctly resized before execution continues
+// correctly resized before execution continues.
+// Causes buffers to swap.
 func SetWindowSize(width, height int) {
 	glfw.SetWindowSize(width, height)
 	// Need to wait for the reshape event, otherwise it happens at an arbitrary
 	// point in the future (some unknown number of SwapBuffers())
-	glfw.WaitEvents()
+	//glfw.PollEvents() // Doesn't work
+	//glfw.WaitEvents() // might be racy (ideally, we'd need to send an event)
+	time.Sleep(10 * time.Millisecond)
+	glfw.SwapBuffers()
 }
 
 func Reshape(width, height int) {
