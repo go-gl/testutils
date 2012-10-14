@@ -54,7 +54,7 @@ failure() {
 }
 
 at() {
-  echo "--" "$@"
+  echo "--" "$@" | tee -a error.log
   erl date +%H:%M:%S.%N
 }
 
