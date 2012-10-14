@@ -34,6 +34,8 @@ check_formatting() {
     exit 1
   fi
 
+
+
   for f in $(find . -iname "*.go")
   do
     if ! pcregrep -M "$CODE_HEADER" "$f"
@@ -66,11 +68,11 @@ upload_to_imgur() {
   done
 }
 
+at "Installing eatmydata and pcregrep"
+erl sudo apt-get install eatmydata pcregrep
+
 at "Checking code formatting"
 check_formatting
-
-at "Installing eatmydata"
-erl sudo apt-get install eatmydata
 
 at "Installing packages"
 # eatmydata provides a slight speedup for installing many packages. At one time
