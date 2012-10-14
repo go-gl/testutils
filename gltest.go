@@ -8,12 +8,14 @@ import (
 	"github.com/go-gl/glfw"
 )
 
-var main_thread_work = make(chan func())
+var main_thread_setup = make(chan func())
+var main_thread_after = make(chan func())
 var main_thread_work_done = make(chan bool)
 
+// Runs `setup` on the main thread, performs glfw.SwapBuffers, then calls `after`
 func OnTheMainThread(setup, after func()) {
-	main_thread_work <- setup
-	main_thread_work <- after
+	main_thread_setup <- setup
+	main_thread_after <- after
 	<-main_thread_work_done
 }
 
@@ -39,15 +41,16 @@ func init() {
 		glfw.SwapBuffers()
 
 		for {
-			(<-main_thread_work)()
+			(<-main_thread_setup)()
 			glfw.SwapBuffers()
-			(<-main_thread_work)()
+			(<-main_thread_after)()
 			main_thread_work_done <- true
 		}
-
 	}()
 }
 
+// This should be used to resize the window during tests, to ensure that it is
+// correctly resized before execution continues
 func SetWindowSize(width, height int) {
 	glfw.SetWindowSize(width, height)
 	// Need to wait for the reshape event, otherwise it happens at an arbitrary
