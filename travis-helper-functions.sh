@@ -34,16 +34,24 @@ check_formatting() {
     exit 1
   fi
 
-
+  FILES_MISSING_HEADERS=false
 
   for f in $(find . -iname "*.go")
   do
     if ! pcregrep -M "$CODE_HEADER" "$f"
     then
-      at " -- '$f' is missing license header:"
-      echo "$CODE_HEADER"
+      at " '$f' is missing license header:"
+      FILES_MISSING_HEADERS=true
     fi
   done
+
+  if $FILES_MISSING_HEADERS
+  then
+    echo "Some files are missing license headers, which should look like this,"\
+         " followed by an empty line:"
+    echo "$CODE_HEADER"
+    exit 1
+  fi
 }
 
 failure() {
