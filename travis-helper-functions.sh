@@ -16,9 +16,21 @@ erl() {
 }
 
 check_formatting() {
-  if [[ -z "$(go fmt)" ]]
+  if [[ -n "$(go fmt)" ]]
   then
-    at "go fmt failed"
+    at "go fmt found problems"
+    exit 1
+  fi
+
+  if [[ -n "$(go vet)" ]]
+  then
+    at "go vet found problems"
+    exit 1
+  fi
+
+  if [[ -n "$(go fix)" ]]
+  then
+    at "go fix found problems"
     exit 1
   fi
 
@@ -28,7 +40,6 @@ check_formatting() {
     then
       at " -- '$f' is missing license header:"
       echo "$CODE_HEADER"
-
     fi
   done
 }
