@@ -1,10 +1,18 @@
 #! /usr/bin/env bash
 
 wget -q https://raw.github.com/go-gl/testutils/master/imgurbash.sh
+chmod u+x imgurbash.sh
 
 # Error log
 erl() {
   "$@" &>> error.log
+}
+
+failure() {
+  at "Failure"
+  at "Error log contents:"
+  cat error.log
+  upload_to_imgur
 }
 
 at() {
@@ -13,6 +21,7 @@ at() {
 }
 
 upload_to_imgur() {
+  at "Uploading to imgur"
   for file in *.png;
   do
     at "Uploading $file"
@@ -38,7 +47,6 @@ erl inotifywait -t 4 -r /tmp/.X11-unix
 export DISPLAY=:0
 
 at "Running glxgears test"
-
 (glxgears -info &) && sleep 10 && pkill glxgears
 
 at "Fetching package dependencies"
@@ -48,5 +56,4 @@ at "Fetching test dependencies"
 go list -f '{{range .TestImports}}{{.}} {{end}}' | xargs go get -d -v
 
 at "Installing test dependencies"
-
 go test -i
