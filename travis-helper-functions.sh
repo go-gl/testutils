@@ -38,7 +38,7 @@ check_formatting() {
 
   for f in $(find . -iname "*.go")
   do
-    if ! pcregrep -M "$CODE_HEADER" "$f"
+    if ! pcregrep -qM "$CODE_HEADER" "$f"
     then
       at " '$f' is missing license header:"
       FILES_MISSING_HEADERS=true
