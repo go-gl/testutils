@@ -1,5 +1,12 @@
 #! /usr/bin/env bash
 
+read -r -d '' CODE_HEADER <<H
+// Copyright 2012 The go-gl Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+H
+
 wget -q https://raw.github.com/go-gl/testutils/master/imgurbash.sh
 chmod u+x imgurbash.sh
 
@@ -8,11 +15,29 @@ erl() {
   "$@" &>> error.log
 }
 
+check_formatting() {
+  if [[ -z "$(go fmt)" ]]
+  then
+    at "go fmt failed"
+    exit 1
+  fi
+
+  for f in $(find . -iname "*.go")
+  do
+    if ! pcregrep -M "$CODE_HEADER" "$f"
+    then
+      at " -- '$f' is missing license header:"
+      echo "$CODE_HEADER"
+
+    fi
+  done
+}
+
 failure() {
-  at "Failure"
-  at "Error log contents:"
+  at "Failure - error log contents:"
   cat error.log
   upload_to_imgur
+  exit 1
 }
 
 at() {
@@ -22,7 +47,7 @@ at() {
 
 upload_to_imgur() {
   at "Uploading to imgur"
-  for file in *.png;
+  for file in *.png
   do
     at "Uploading $file"
     ./imgurbash.sh $file
@@ -30,10 +55,16 @@ upload_to_imgur() {
   done
 }
 
+at "Checking code formatting"
+check_formatting
+
 at "Installing eatmydata"
 erl sudo apt-get install eatmydata
 
 at "Installing packages"
+# eatmydata provides a slight speedup for installing many packages. At one time
+# it was significant (when installing the whole of lightdm for example), but
+# I'm not sure if it's the case here. It doesn't cost anything, so here it is.
 erl sudo eatmydata apt-get install -qq \
   libglfw-dev libglew-dev mesa-utils inotify-tools xserver-xorg
 
