@@ -16,9 +16,11 @@ erl() {
 }
 
 check_formatting() {
-  if [[ -n "$(go fmt)" ]]
+  BADFMT="$(find . -iname \*.go | xargs gofmt -l)"
+  if [[ -n "$BADFMT" ]]
   then
-    at "go fmt found problems"
+    at "go fmt found problems with the following files:"
+    echo "$BADFMT"
     exit 1
   fi
 
