@@ -63,12 +63,12 @@ check_formatting() {
 # needs to be copied from pwaller/gl to go-gl/gl and installed.
 subtest() {
   WHOAMI="$1"
-  PROPER_LOCATION="${GOPATH}/src/github/${WHOAMI}"
+  PROPER_LOCATION="${GOPATH}/src/github.com/${WHOAMI}"
   TESTPKG="github.com/${2}"
   if [[ "$PWD" != "${PROPER_LOCATION}" ]]; then
-    cp -R "${PWD}" "${PROPER_LOCATION}"
-    pushd "${PROPER_LOCATION}"
     at "Moving myself to ${PROPER_LOCATION}..."
+    cp -R "${PWD}"/* "${PROPER_LOCATION}"
+    pushd "${PROPER_LOCATION}"
     at "go get"
     erl go get -d -v
     at "go build"
