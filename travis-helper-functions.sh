@@ -56,6 +56,34 @@ check_formatting() {
   fi
 }
 
+# $1 == name of this package
+# $2 == name of package to checkout and test
+# For example, if the package being tested is pwaller's clone of go-gl/gl,
+# and we wish to ensure go-gl/examples still works, then the current package
+# needs to be copied from pwaller/gl to go-gl/gl and installed.
+subtest() {
+  WHOAMI="$1"
+  PROPER_LOCATION="${GOPATH}/src/github/${WHOAMI}"
+  TESTPKG="github.com/${2}"
+  if [[ "$PWD" != "${PROPER_LOCATION}" ]]; then
+    cp -R "${PWD}" "${PROPER_LOCATION}"
+    pushd "${PROPER_LOCATION}"
+    at "Moving myself to ${PROPER_LOCATION}..."
+    at "go get"
+    erl go get -d -v
+    at "go build"
+    erl go build
+    at "go install"
+    erl go install
+    popd
+  fi
+  
+  at "Fetching ${TESTPKG}"
+  go get -d -v "${TESTPKG}"
+  at "Testing ${TESTPKG}"
+  go test -v "${TESTPKG}"
+}
+
 failure() {
   at "Failure - error log contents:"
   cat error.log
