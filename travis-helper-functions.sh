@@ -117,7 +117,7 @@ at "Installing packages"
 # it was significant (when installing the whole of lightdm for example), but
 # I'm not sure if it's the case here. It doesn't cost anything, so here it is.
 erl sudo eatmydata apt-get install -qq \
-  libglfw-dev libglew-dev mesa-utils inotify-tools xserver-xorg
+  libglfw-dev libglew-dev mesa-utils inotify-tools xserver-xorg libsdl-dev
 
 at "Starting X"
 erl sudo mkdir -p /tmp/.X11-unix
