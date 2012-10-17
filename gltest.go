@@ -7,6 +7,7 @@ package gltest
 import (
 	"log"
 	"runtime"
+	"sync"
 	"time"
 
 	"github.com/go-gl/gl"
@@ -17,14 +18,17 @@ var main_thread_setup = make(chan func())
 var main_thread_after = make(chan func())
 var main_thread_work_done = make(chan bool)
 
+var initialize_opengl sync.Once
+
 // Runs `setup` on the main thread, performs glfw.SwapBuffers, then calls `after`
 func OnTheMainThread(setup, after func()) {
+	initialize_opengl.Do(StartOpenGL)
 	main_thread_setup <- setup
 	main_thread_after <- after
 	<-main_thread_work_done
 }
 
-func init() {
+func StartOpenGL() {
 	go func() {
 		runtime.LockOSThread()
 
