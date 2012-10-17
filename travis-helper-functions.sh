@@ -61,7 +61,7 @@ check_formatting() {
 # For example, if the package being tested is pwaller's clone of go-gl/gl,
 # and we wish to ensure go-gl/examples still works, then the current package
 # needs to be copied from pwaller/gl to go-gl/gl and installed.
-subtest() {
+subtest-init() {
   WHOAMI="$1"
   PROPER_LOCATION="${GOPATH}/src/github.com/${WHOAMI}"
   TESTPKG="github.com/${2}"
@@ -81,6 +81,12 @@ subtest() {
   
   at "Fetching ${TESTPKG}"
   go get -d -v "${TESTPKG}"
+  at "Installing test deps for ${TESTPKG}"
+  go test -i "${TESTPKG}"
+}
+
+subtest() {
+  TESTPKG="github.com/${2}"
   at "Testing ${TESTPKG}"
   go test -v "${TESTPKG}"
 }
