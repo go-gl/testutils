@@ -67,6 +67,7 @@ subtest() {
   TESTPKG="github.com/${2}"
   if [[ "$PWD" != "${PROPER_LOCATION}" ]]; then
     at "Moving myself to ${PROPER_LOCATION}..."
+    mkdir -p "${PROPER_LOCATION}"
     cp -R "${PWD}"/* "${PROPER_LOCATION}"
     pushd "${PROPER_LOCATION}"
     at "go get"
