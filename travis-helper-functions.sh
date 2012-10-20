@@ -12,9 +12,14 @@ chmod u+x imgurbash.sh
 
 # Error log
 erl() {
-  at "$@"
+  at "  ""$@"
   "$@" &>> error.log
   return $?
+}
+
+at() {
+  echo "--" "$@" | tee -a error.log
+  date +%H:%M:%S.%N &>> error.log
 }
 
 check-formatting() {
@@ -100,11 +105,6 @@ failure() {
   exit 1
 }
 
-at() {
-  echo "--" "$@" | tee -a error.log
-  erl date +%H:%M:%S.%N
-}
-
 upload-to-imgur() {
   at "Uploading to imgur"
   for file in *.png
@@ -115,37 +115,53 @@ upload-to-imgur() {
   done
 }
 
-at "Installing eatmydata and pcregrep"
-erl sudo apt-get install eatmydata pcregrep
+die() {
+  at "Failure: $@"
+  exit 1
+}
 
-at "Checking code formatting"
-check_formatting
+initialize() {
+  at "Installing eatmydata and pcregrep"
+  erl sudo apt-get install eatmydata pcregrep || die "Failed to install"
 
-at "Installing packages"
-# eatmydata provides a slight speedup for installing many packages. At one time
-# it was significant (when installing the whole of lightdm for example), but
-# I'm not sure if it's the case here. It doesn't cost anything, so here it is.
-erl sudo eatmydata apt-get install -qq \
-  libglfw-dev libglew-dev mesa-utils inotify-tools xserver-xorg \
-  libsdl1.2-dev libsdl-image1.2-dev
+  at "Checking code formatting"
+  check-formatting \
+    || die "Formatting checks failed"
 
-at "Starting X"
-erl sudo mkdir -p /tmp/.X11-unix
-(sleep 0.5 && sudo X) &>> error.log &
+  at "apt-get update -qq"
+  erl sudo eatmydata apt-get update -qq \
+    || die "'apt-get update -qq' failed"
 
-at "Waiting for X to come up"
-erl inotifywait -t 4 -r /tmp/.X11-unix
+  at "Installing packages"
+  # eatmydata provides a slight speedup for installing many packages. At one time
+  # it was significant (when installing the whole of lightdm for example), but
+  # I'm not sure if it's the case here. It doesn't cost anything, so here it is.
+  erl sudo eatmydata apt-get install -qq \
+    libglfw-dev libglew-dev mesa-utils inotify-tools xserver-xorg \
+    libsdl1.2-dev libsdl-image1.2-dev \
+      || die "Failed to install dependencies"
 
-export DISPLAY=:0
+  at "Starting X"
+  erl sudo mkdir -p /tmp/.X11-unix
+  (sleep 0.5 && sudo X) &>> error.log &
 
-at "Running glxgears test"
-(glxgears -info &) && sleep 10 && pkill glxgears
+  at "Waiting for X to come up"
+  erl inotifywait -t 4 -r /tmp/.X11-unix
 
-at "Fetching package dependencies"
-go get -d -v
+  export DISPLAY=:0
 
-at "Fetching test dependencies"
-go list -f '{{range .TestImports}}{{.}} {{end}}' | xargs go get -d -v
+  at "Running glxgears test"
+  (glxgears -info &) && sleep 2 && pkill glxgears
 
-at "Installing test dependencies"
-go test -i
+  at "Fetching package dependencies"
+  go get -d -v \
+    || die "go get failed"
+
+  at "Fetching test dependencies"
+  go list -f '{{range .TestImports}}{{.}} {{end}}' | xargs go get -d -v \
+    || die "Fetching test deps failed"
+
+  at "Installing test dependencies"
+  go test -i \
+    || die "'go test -i' failed"
+}
