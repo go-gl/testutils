@@ -12,7 +12,9 @@ chmod u+x imgurbash.sh
 
 # Error log
 erl() {
+  at "$@"
   "$@" &>> error.log
+  return $?
 }
 
 check_formatting() {
