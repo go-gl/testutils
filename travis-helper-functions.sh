@@ -17,25 +17,25 @@ erl() {
   return $?
 }
 
-check_formatting() {
+check-formatting() {
   BADFMT="$(find . -iname \*.go | xargs gofmt -l)"
   if [[ -n "$BADFMT" ]]
   then
     at "go fmt found problems with the following files:"
     echo "$BADFMT"
-    exit 1
+    return 1
   fi
 
   if [[ -n "$(go vet)" ]]
   then
     at "go vet found problems"
-    exit 1
+    return 1
   fi
 
   if [[ -n "$(go fix)" ]]
   then
     at "go fix found problems"
-    exit 1
+    return 1
   fi
 
   FILES_MISSING_HEADERS=false
@@ -54,7 +54,7 @@ check_formatting() {
     echo "Some files are missing license headers, which should look like this,"\
          " followed by an empty line:"
     echo "$CODE_HEADER"
-    exit 1
+    return 1
   fi
 }
 
@@ -96,7 +96,7 @@ subtest() {
 failure() {
   at "Failure - error log contents:"
   cat error.log
-  upload_to_imgur
+  upload-to-imgur
   exit 1
 }
 
@@ -105,7 +105,7 @@ at() {
   erl date +%H:%M:%S.%N
 }
 
-upload_to_imgur() {
+upload-to-imgur() {
   at "Uploading to imgur"
   for file in *.png
   do
