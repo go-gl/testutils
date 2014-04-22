@@ -137,13 +137,13 @@ initialize() {
   # it was significant (when installing the whole of lightdm for example), but
   # I'm not sure if it's the case here. It doesn't cost anything, so here it is.
   erl sudo eatmydata apt-get install -qq \
-    libglfw-dev libglew-dev mesa-utils inotify-tools xserver-xorg \
+    libglfw-dev libglew-dev mesa-utils inotify-tools xvfb \
     libsdl1.2-dev libsdl-image1.2-dev \
       || die "Failed to install dependencies"
 
   at "Starting X"
   erl sudo mkdir -p /tmp/.X11-unix
-  (sleep 0.5 && sudo X) &>> error.log &
+  (sleep 0.5 && sudo Xvfb) &>> error.log &
 
   at "Waiting for X to come up"
   erl inotifywait -t 4 -r /tmp/.X11-unix
