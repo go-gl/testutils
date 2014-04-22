@@ -143,9 +143,19 @@ initialize() {
   # it was significant (when installing the whole of lightdm for example), but
   # I'm not sure if it's the case here. It doesn't cost anything, so here it is.
   erl sudo eatmydata apt-get install -qq \
-    libglfw-dev libglew-dev mesa-utils inotify-tools xvfb \
+    libglfw-dev libglew-dev mesa-utils inotify-tools xvfb libxi-dev \
     libsdl1.2-dev libsdl-image1.2-dev \
       || die "Failed to install dependencies"
+
+  at "Installing glfw3"
+  wget -q https://github.com/glfw/glfw/archive/3.0.4.tar.gz
+  tar xf 3.0.4.tar.gz
+  cd glfw-3.0.4/
+  mkdir -p build
+  cd build
+  erl cmake ..
+  erl make
+  erl sudo make install
 
   at "Starting X"
   erl sudo mkdir -p /tmp/.X11-unix
