@@ -148,6 +148,7 @@ initialize() {
       || die "Failed to install dependencies"
 
   at "Installing glfw3"
+  pushd /tmp
   wget -q https://github.com/glfw/glfw/archive/3.0.4.tar.gz
   tar xf 3.0.4.tar.gz
   cd glfw-3.0.4/
@@ -156,6 +157,7 @@ initialize() {
   erl cmake ..
   erl make
   erl sudo make install
+  popd
 
   at "Starting X"
   erl sudo mkdir -p /tmp/.X11-unix
