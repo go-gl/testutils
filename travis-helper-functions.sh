@@ -153,6 +153,10 @@ initialize() {
   at "Running glxgears test"
   (glxgears -info &) && sleep 2 && pkill glxgears
 
+  cat error.log
+
+  die "failed"
+
   at "Fetching package dependencies"
   go get -d -v \
     || die "go get failed"
