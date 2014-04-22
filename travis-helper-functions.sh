@@ -95,7 +95,7 @@ subtest-init() {
 subtest() {
   TESTPKG="github.com/${2}"
   at "Testing ${TESTPKG}"
-  go test -v "${TESTPKG}"
+  vglrun go test -v "${TESTPKG}"
 }
 
 failure() {
@@ -124,6 +124,12 @@ initialize() {
   at "Installing eatmydata and pcregrep"
   erl sudo apt-get install eatmydata pcregrep || die "Failed to install"
 
+  at "Getting virtualgl"
+  wget -O virtualgl_2.3.3_amd64.deb http://sourceforge.net/projects/virtualgl/files/VirtualGL/2.3.3/virtualgl_2.3.3_amd64.deb/download
+
+  at "Installing virtualgl"
+  sudo eatmydata dpkg -i virtualgl_2.3.3_amd64.deb
+
   at "Checking code formatting"
   check-formatting \
     || die "Formatting checks failed"
@@ -151,7 +157,7 @@ initialize() {
   export DISPLAY=:0
 
   at "Running glxgears test"
-  (glxgears -info &) && sleep 2 && pkill glxgears
+  (vglrun glxgears -info &) && sleep 2 && pkill glxgears
 
   # cat error.log
 
